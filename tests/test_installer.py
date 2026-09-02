@@ -216,6 +216,15 @@ python.chmod(python.stat().st_mode | stat.S_IXUSR)
                 "FAKE_LAUNCHER_LOG": str(self.launcher_log),
             }
         )
+        for name in (
+            "ALL_PROXY",
+            "all_proxy",
+            "HTTPS_PROXY",
+            "https_proxy",
+            "HTTP_PROXY",
+            "http_proxy",
+        ):
+            environment.pop(name, None)
         return environment
 
     def _run(
