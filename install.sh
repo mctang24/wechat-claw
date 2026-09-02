@@ -110,7 +110,6 @@ stop_daemon() {
 command -v "$PYTHON" >/dev/null 2>&1 || fail "Python 3.11+ is required"
 "$PYTHON" -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' \
   || fail "Python 3.11+ is required"
-command -v tmux >/dev/null 2>&1 || fail "tmux is required"
 command -v curl >/dev/null 2>&1 || fail "curl is required"
 command -v lsof >/dev/null 2>&1 || fail "lsof is required"
 

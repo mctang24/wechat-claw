@@ -47,9 +47,8 @@ class CommandRouter:
         text = raw_text.strip()
         if not text:
             return RouteResult(reply="消息为空，未发送。")
-        if text == "/sessions" or text.startswith("/sessions "):
-            keyword = text[len("/sessions") :].strip() or None
-            return RouteResult(reply=self._format_sessions(keyword))
+        if text == "/sessions":
+            return RouteResult(reply=self._format_sessions())
         if match := _FOCUS.fullmatch(text):
             return RouteResult(reply=self._focus(int(match.group(1))))
         if text == "/unfocus":
@@ -63,6 +62,8 @@ class CommandRouter:
             return RouteResult(approve=ApproveRequest(match.group(1)))
         if text == "/help":
             return RouteResult(reply=self._format_help())
+        if text.startswith("/sessions"):
+            return RouteResult(reply="用法：/sessions")
         if text.startswith("/focus"):
             return RouteResult(reply="用法：/focus <编号>")
         if text.startswith("/unfocus"):
@@ -95,32 +96,39 @@ class CommandRouter:
             return RouteResult(reply="会话编号不存在或已失效，请重新发送 /sessions。")
         return RouteResult(send=SendMessage(number, session.thread_id, message))
 
-    def _format_sessions(self, keyword: str | None) -> str:
-        sessions = self.sessions.list(keyword)
+    def _format_sessions(self) -> str:
+        sessions = self.sessions.list()
         if not sessions:
-            return "当前没有匹配的活跃 Codex 会话。" if keyword else "当前没有活跃 Codex 会话。"
-        lines = [f"活跃 Codex 会话（{len(sessions)} 个）"]
+            return "当前没有活跃 Codex 会话。"
+        lines = [f"活跃 Codex 会话（{len(sessions)} 个，编号用于 /focus 和 /send）"]
         for session in sessions:
             lines.extend(self._format_session(session))
         return "\n".join(lines)
 
     def _format_session(self, session: ActiveSession) -> list[str]:
         tmux = "/".join(
-            value or "-"
+            value
             for value in (session.tmux.session, session.tmux.window, session.tmux.pane)
+            if value
         )
         latest = session.latest_message or "（暂无消息）"
         if len(latest) > self.preview_limit:
             latest = latest[: self.preview_limit] + "\n（内容已截断）"
-        return [
+        lines = [
             "",
             f"{session.number}. {session.project_name}",
             f"目录：{session.cwd}",
-            f"tmux：{tmux}",
-            f"状态：{_STATUS_LABELS[session.status]}",
-            f"最近活动：{_format_time(session.last_activity)}",
-            f"最近消息：{latest}",
         ]
+        if tmux:
+            lines.append(f"tmux：{tmux}")
+        lines.extend(
+            (
+                f"状态：{_STATUS_LABELS[session.status]}",
+                f"最近活动：{_format_time(session.last_activity)}",
+                f"最近消息：{latest}",
+            )
+        )
+        return lines
 
     def _format_help(self) -> str:
         focus = self.sessions.focus
@@ -130,7 +138,7 @@ class CommandRouter:
         return "\n".join(
             (
                 "WeChat Claw 命令",
-                "/sessions [关键词]：查看或过滤活跃会话",
+                "/sessions：查看活跃会话和编号",
                 "/focus <编号>：持续选择一个会话",
                 "/unfocus：解除当前选择",
                 "/send <编号> <消息>：单次定向发送，不改变 focus",

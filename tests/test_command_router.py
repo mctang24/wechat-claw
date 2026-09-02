@@ -32,10 +32,29 @@ class CommandRouterTest(unittest.TestCase):
         result = router.route("/sessions")
 
         self.assertIn("1. project-a", result.reply)
+        self.assertIn("编号用于 /focus 和 /send", result.reply)
         self.assertIn("tmux：main/editor/%1", result.reply)
         self.assertIn("状态：处理中", result.reply)
         self.assertIn("第一行\n第二", result.reply)
         self.assertIn("内容已截断", result.reply)
+
+    def test_sessions_omits_tmux_line_outside_tmux(self) -> None:
+        registry = SessionRegistry()
+        registry.add_lease(
+            ActiveLease(
+                lease_id=11,
+                thread_id="thread-plain-terminal",
+                registration=LeaseRegistration(
+                    cwd="/tmp/plain-terminal",
+                    tmux=TmuxLocation(None, None, None),
+                ),
+            )
+        )
+
+        result = CommandRouter(registry).route("/sessions")
+
+        self.assertIn("1. plain-terminal", result.reply)
+        self.assertNotIn("tmux：", result.reply)
 
     def test_focus_plain_text_send_and_unfocus(self) -> None:
         registry = populated_registry()
@@ -84,6 +103,7 @@ class CommandRouterTest(unittest.TestCase):
     def test_malformed_known_commands_return_usage(self) -> None:
         router = CommandRouter(populated_registry())
         cases = {
+            "/sessions keyword": "/sessions",
             "/focus abc": "/focus <编号>",
             "/unfocus extra": "/unfocus",
             "/send 1": "/send <编号> <消息>",
@@ -111,7 +131,7 @@ class CommandRouterTest(unittest.TestCase):
         router = CommandRouter(registry)
         long_text = "长" * 5000
         cases = (
-            (" /sessions project-a ", "reply", "project-a"),
+            (" /sessions project-a ", "reply", "用法：/sessions"),
             ("/SESSIONS", "reply", "未知命令"),
             ("/focus", "reply", "/focus <编号>"),
             ("/focus 0", "reply", "不存在"),

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -200,6 +201,15 @@ python.chmod(python.stat().st_mode | stat.S_IXUSR)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(zshrc.read_text(), malformed)
         self.assertTrue(wrapper.exists())
+
+    def test_install_does_not_require_tmux(self) -> None:
+        environment = self._environment()
+        environment["PATH"] = f"{self.tools}:/usr/bin:/bin:/usr/sbin"
+        self.assertIsNone(shutil.which("tmux", path=environment["PATH"]))
+
+        self._run(INSTALLER, environment)
+
+        self.assertTrue((self.bin_dir / "codex").exists())
 
     def _environment(self) -> dict[str, str]:
         environment = os.environ.copy()

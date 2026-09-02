@@ -108,28 +108,8 @@ class SessionRegistry:
         number = self._number_by_thread.get(thread_id)
         return self._by_number.get(number) if number is not None else None
 
-    def list(self, keyword: str | None = None) -> tuple[ActiveSession, ...]:
-        sessions = tuple(self._by_number[number] for number in sorted(self._by_number))
-        if not keyword:
-            return sessions
-        needle = keyword.casefold()
-        return tuple(
-            session
-            for session in sessions
-            if needle
-            in " ".join(
-                value
-                for value in (
-                    session.project_name,
-                    session.cwd,
-                    session.tmux.session,
-                    session.tmux.window,
-                    session.tmux.pane,
-                    session.latest_message,
-                )
-                if value
-            ).casefold()
-        )
+    def list(self) -> tuple[ActiveSession, ...]:
+        return tuple(self._by_number[number] for number in sorted(self._by_number))
 
     def set_focus(self, number: int) -> ActiveSession | None:
         session = self._by_number.get(number)

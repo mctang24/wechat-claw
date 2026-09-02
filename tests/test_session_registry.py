@@ -80,7 +80,7 @@ class SessionRegistryTest(unittest.TestCase):
 
         self.assertIsNone(registry.focus)
 
-    def test_status_message_and_keyword_filter(self) -> None:
+    def test_status_message_and_ordered_listing(self) -> None:
         registry = SessionRegistry()
         registry.add_lease(lease(10, "thread-1", "/tmp/Alpha"))
         registry.add_lease(lease(11, "thread-2", "/tmp/Beta"))
@@ -88,7 +88,10 @@ class SessionRegistryTest(unittest.TestCase):
         registry.record_message("thread-1", "原文 Needle")
 
         self.assertEqual(updated.status, SessionStatus.RUNNING)
-        self.assertEqual([item.thread_id for item in registry.list("needle")], ["thread-1"])
+        self.assertEqual(
+            [item.thread_id for item in registry.list()],
+            ["thread-1", "thread-2"],
+        )
         self.assertEqual(registry.get_by_thread("thread-1").latest_message, "原文 Needle")
 
     def test_clear_resets_runtime_state_and_numbering(self) -> None:
