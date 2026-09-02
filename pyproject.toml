@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wechat-claw"
+version = "0.1.0"
+description = "Bridge active Codex CLI sessions to a bound WeChat account."
+requires-python = ">=3.11"
+dependencies = [
+  "wechatbot-sdk==0.3.0",
+  "websockets>=17.1,<18",
+]
+
+[project.scripts]
+wechat-claw = "wechat_claw.cli:main"
+wechat-claw-codex = "wechat_claw.codex_wrapper:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
