@@ -10,7 +10,9 @@ Continue active Codex CLI sessions on your Mac directly from WeChat.
 [中文](README.md)
 
 <p align="center">
-  <img src="assets/wechat.png" alt="Using Codex CLI from WeChat" width="680">
+  <img src="assets/wechat.png" alt="Viewing active Codex CLI sessions from WeChat" width="300">
+  &nbsp;&nbsp;
+  <img src="assets/wechat-result.png" alt="Sending a message to Codex CLI and receiving its reply from WeChat" width="300">
 </p>
 
 ## Usage

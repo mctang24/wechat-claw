@@ -10,7 +10,9 @@ WeChat Claw 把微信变成 Codex CLI 的移动入口。离开电脑时，也能
 [English](README_EN.md)
 
 <p align="center">
-  <img src="assets/wechat.png" alt="通过微信操作 Codex CLI" width="680">
+  <img src="assets/wechat.png" alt="通过微信查看活跃 Codex CLI 会话" width="300">
+  &nbsp;&nbsp;
+  <img src="assets/wechat-result.png" alt="通过微信向 Codex CLI 发送消息并接收回复" width="300">
 </p>
 
 ## 使用
