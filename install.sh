@@ -181,9 +181,9 @@ proxy_url="${HTTPS_PROXY:-${https_proxy:-${ALL_PROXY:-${all_proxy:-}}}}"
 case "$proxy_url" in
   socks*|SOCKS*)
     socks_metadata="$TMP_DIR/pysocks.json"
-    socks_wheel="$TMP_DIR/pysocks.whl"
     curl -fsSL https://pypi.org/pypi/PySocks/json -o "$socks_metadata"
     socks_url="$("$PYTHON" -c 'import json, sys; data=json.load(open(sys.argv[1])); print(next(item["url"] for item in data["urls"] if item["filename"].endswith("py3-none-any.whl")))' "$socks_metadata")"
+    socks_wheel="$TMP_DIR/${socks_url##*/}"
     curl -fsSL "$socks_url" -o "$socks_wheel"
     env -u ALL_PROXY -u all_proxy -u HTTPS_PROXY -u https_proxy \
       -u HTTP_PROXY -u http_proxy \
